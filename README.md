@@ -10,5 +10,5 @@ $ curl -XGET -H'x-auth-token: AUTH_tk88b37b33021546728a8ab4221a4cf8f3' http://12
 
 Would have the same result as:
 ```
-cat mount_dir/v1/AUTH_test/container/object
+$ cat mount_dir/v1/AUTH_test/container/object
 ```
