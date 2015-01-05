@@ -15,6 +15,8 @@
 import requests
 import unittest
 
+from subprocess import Popen, PIPE
+
 
 class ReadTest(unittest.TestCase):
 
@@ -27,16 +29,23 @@ class ReadTest(unittest.TestCase):
         auth_token = r.headers.get('x-auth-token')
 
         # Ray creates a container to hold some objects.
-        requests.put('{0}/saiof_test_read_access'.format(storage_url),
+        requests.put('{}/saiof_test_read_access'.format(storage_url),
                      headers={'X-Auth-Token': auth_token})
 
         # He now creates an object in the new container.
-        requests.put('{0}/saiof_test_read_access/object'.format(storage_url),
+        requests.put('{}/saiof_test_read_access/object'.format(storage_url),
                      headers={'X-Auth-Token': auth_token},
                      data='Some test data')
 
         # Ray mounts his his SAIO using SAIO Fuse.
-        ## ./bin/saio_fuse /tmp/saio_fuse
+        p = Popen(['./saio_fuse', '/tmp/saio_fuse'],
+                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, err = p.communicate()
+        self.assertEqual(err, '')
+        self.assertEqual(p.returncode, 0)
+        self.assertIn('total 4', output)
+        self.assertIn('-r--r--r-- 1 rhawkins rhawkins 14 Jan  4 21:50 object',
+                      output)
 
         # He performs a container listing using Swift's API and the
         # mounted directory, verifing that they are equivalent.
