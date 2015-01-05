@@ -23,8 +23,8 @@ class ReadTest(unittest.TestCase):
     def test_read_access(self):
         # Ray authenticates using temp auth
         r = requests.get('http://127.0.0.1:8080/auth/v1.0',
-                          headers={'X-Storage-User': 'test:tester',
-                                   'X-Storage-Pass': 'testing'})
+                         headers={'X-Storage-User': 'test:tester',
+                                  'X-Storage-Pass': 'testing'})
         storage_url = r.headers.get('x-storage-url')
         auth_token = r.headers.get('x-auth-token')
 
@@ -49,7 +49,8 @@ class ReadTest(unittest.TestCase):
 
         # He performs a container listing using Swift's API and the
         # mounted directory, verifing that they are equivalent.
-        ## HTTP GET http://127.0.0.1:8080/v1/AUTH_test/test_read_access?format=json
+        ## HTTP GET http://127.0.0.1:8080
+        ##          v1/AUTH_test/test_read_access?format=json
         ## ls -l /tmp/saio_fuse/v1/AUTH_test/test_read_access
 
         # He then reads an object using Swift's API and the mounted
