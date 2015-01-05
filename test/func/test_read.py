@@ -12,17 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import requests
 import unittest
 
 
 class ReadTest(unittest.TestCase):
 
     def test_read_access(self):
+        # Ray authenticates using temp auth
+        r = requests.get('http://127.0.0.1:8080/auth/v1.0',
+                          headers={'X-Storage-User': 'test:tester',
+                                   'X-Storage-Pass': 'testing'})
+        storage_url = r.headers.get('x-storage-url')
+        auth_token = r.headers.get('x-auth-token')
+
         # Ray creates a container to hold some objects.
-        ## HTTP PUT http://127.0.0.1:8080/v1/AUTH_test/test_read_access
+        requests.put('{0}/saiof_test_read_access'.format(storage_url),
+                     headers={'X-Auth-Token': auth_token})
 
         # He now creates an object in the new container.
-        ## HTTP PUT http://127.0.0.1:8080/v1/AUTH_test/test_read_access/object
+        requests.put('{0}/saiof_test_read_access/object'.format(storage_url),
+                     headers={'X-Auth-Token': auth_token},
+                     data='Some test data')
 
         # Ray mounts his his SAIO using SAIO Fuse.
         ## ./bin/saio_fuse /tmp/saio_fuse
@@ -36,7 +47,6 @@ class ReadTest(unittest.TestCase):
         # directory, verifying that they are the same.
         ##  HTTP GET http://127.0.0.1:8080/v1/AUTH_test/test_read_access/object
         ## cat /tmp/saio_fuse/v1/AUTH_test/test_read_access/object
-        pass
 
 
 if __name__ == '__main__':
