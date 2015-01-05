@@ -44,7 +44,7 @@ class ReadTest(unittest.TestCase):
         self.assertEqual(err, '')
         self.assertEqual(p.returncode, 0)
         self.assertIn('total 4', output)
-        self.assertIn('-r--r--r-- 1 rhawkins rhawkins 14 Jan  4 21:50 object',
+        self.assertIn('-r--r--r-- 1 rsmuckles rsmuckles 14 Jan  4 21:50 object',
                       output)
 
         # He performs a container listing using Swift's API and the
