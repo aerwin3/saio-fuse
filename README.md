@@ -1,7 +1,10 @@
 SAIO Fuse
 =========
 
-Fuse filesystem for a SAIO (Swift All-In-One).
+Fuse file system for a SAIO (Swift All-In-One).
+
+<strong>Note:</strong>  This project is currently in the development phase and
+should be considered non-working/unstable until this note is removed.
 
 For example the command:
 ```
