@@ -20,6 +20,15 @@ from subprocess import Popen, PIPE
 
 class ReadTest(unittest.TestCase):
 
+    @classmethod
+    def tearDownClass(cls):
+        p = Popen(['umount', '/tmp/saio_fuse'],
+                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, err = p.communicate()
+        if err:
+            if 'is not mounted' not in err:
+                raise Exception(err)
+
     def test_read_access(self):
         # Ray authenticates using temp auth
         r = requests.get('http://127.0.0.1:8080/auth/v1.0',
@@ -37,8 +46,20 @@ class ReadTest(unittest.TestCase):
                      headers={'X-Auth-Token': auth_token},
                      data='Some test data')
 
+        # Ray creates a directory to mount to.
+        # p = Popen(['mkdir', '-p', '/tmp/saio_fuse'],
+        #           stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        # output, err = p.communicate()
+        # if err:
+        #     raise Exception('Could not create mount point')
+
         # Ray mounts his his SAIO using SAIO Fuse.
-        p = Popen(['./saio_fuse', '/tmp/saio_fuse'],
+        # p = Popen(['./saio_fuse', '/tmp/saio_fuse'],
+        #           stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        # output, err = p.communicate()
+
+        # Ray does a directory listing
+        p = Popen(['ls', '-l', 'mount_dir'],
                   stdin=PIPE, stdout=PIPE, stderr=PIPE)
         output, err = p.communicate()
         self.assertEqual(err, '')

@@ -16,5 +16,17 @@
 import sys
 
 
-print 'SAIO FUSE'
-print sys.argv
+from fuse import FUSE, FuseOSError, Operations
+
+
+class SAIOFuse(Operations):
+    def __init__(self):
+        self.root = '/home/vagrant/middleware/saio-fuse/target_dir'
+
+
+def main(mountpoint):
+    FUSE(SAIOFuse(), mountpoint, foreground=True)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])
