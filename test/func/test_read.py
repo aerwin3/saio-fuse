@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import getpass
 import requests
 import unittest
 
@@ -64,9 +65,10 @@ class ReadTest(unittest.TestCase):
         output, err = p.communicate()
         self.assertEqual(err, '')
         self.assertEqual(p.returncode, 0)
-        self.assertIn('total 4', output)
-        self.assertIn('-r--r--r-- 1 rsmuckles rsmuckles 14 Jan  4 21:50 object',
-                      output)
+        user = getpass.getuser()
+        # self.assertIn('total 4', output)
+        self.assertIn('-r--r--r-- 1 {} {} 15 Jan  7 19:28 object'.format(
+                      user, user), output)
 
         # He performs a container listing using Swift's API and the
         # mounted directory, verifing that they are equivalent.

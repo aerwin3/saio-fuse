@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
 
 
@@ -20,8 +21,32 @@ from fuse import FUSE, FuseOSError, Operations
 
 
 class SAIOFuse(Operations):
-    def __init__(self):
-        self.root = '/home/vagrant/middleware/saio-fuse/target_dir'
+
+    # Filesystem methods
+    # ==================
+
+    def getattr(self, path, fh=None):
+        mode = 33060
+        if path == '/':
+            mode = 16877
+        attr = {
+            'st_atime': 1420658919.81,
+            'st_ctime': 1420658915.13,
+            'st_gid': 1000,
+            'st_mode': mode,
+            'st_mtime': 1420658915.13,
+            'st_nlink': 1,
+            'st_size': 15,
+            'st_uid': 1000,
+        }
+
+        return attr
+
+    def readdir(self, path, fh):
+        dirents = ['.', '..']
+        dirents.extend(['object'])
+        for r in dirents:
+            yield r
 
 
 def main(mountpoint):
