@@ -48,11 +48,11 @@ class ReadTest(unittest.TestCase):
                      data='Some test data')
 
         # Ray creates a directory to mount to.
-        # p = Popen(['mkdir', '-p', '/tmp/saio_fuse'],
-        #           stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        # output, err = p.communicate()
-        # if err:
-        #     raise Exception('Could not create mount point')
+        p = Popen(['mkdir', '-p', '/tmp/saio_fuse'],
+                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, err = p.communicate()
+        if err:
+            raise Exception('Could not create mount point')
 
         # Ray mounts his his SAIO using SAIO Fuse.
         # p = Popen(['./saio_fuse', '/tmp/saio_fuse'],
@@ -60,7 +60,7 @@ class ReadTest(unittest.TestCase):
         # output, err = p.communicate()
 
         # Ray does a directory listing
-        p = Popen(['ls', '-l', 'mount_dir'],
+        p = Popen(['ls', '-l', 'mount_dir/v1/AUTH_test/saiof_test_read_access'],
                   stdin=PIPE, stdout=PIPE, stderr=PIPE)
         output, err = p.communicate()
         self.assertEqual(err, '')

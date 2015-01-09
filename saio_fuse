@@ -27,7 +27,7 @@ class SAIOFuse(Operations):
 
     def getattr(self, path, fh=None):
         mode = 33060
-        if path == '/':
+        if path in '/v1/AUTH_test/saiof_test_read_access':
             mode = 16877
         attr = {
             'st_atime': 1420658919.81,
@@ -43,8 +43,18 @@ class SAIOFuse(Operations):
         return attr
 
     def readdir(self, path, fh):
+        listing = []
+        if path == '/':
+            listing = ['v1']
+        elif path == '/v1':
+            listing = ['AUTH_test']
+        elif path == '/v1/AUTH_test':
+            listing = ['saiof_test_read_access']
+        elif path == '/v1/AUTH_test/saiof_test_read_access':
+            listing = ['object']
+
         dirents = ['.', '..']
-        dirents.extend(['object'])
+        dirents.extend(listing)
         for r in dirents:
             yield r
 
