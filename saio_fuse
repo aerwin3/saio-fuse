@@ -16,11 +16,26 @@
 import os
 import sys
 
+from swift.common.ring import Ring
+
 from stat import S_IFDIR, S_IFREG
 from fuse import FUSE, FuseOSError, Operations
 
+import requests
 
 class SAIOFuse(Operations):
+
+    # Helper methods
+    # ==============
+
+    def _list_accounts(self, path):
+        return ['AUTH_test']
+
+    def _list_containers(self, path):
+        return ['saiof_test_read_access']
+
+    def _list_objects(self, path):
+        return ['object']
 
     # Filesystem methods
     # ==================
@@ -51,11 +66,11 @@ class SAIOFuse(Operations):
         if path == '/':
             listing = ['v1']
         elif path == '/v1':
-            listing = ['AUTH_test']
+            listing = self._list_accounts(path)
         elif path == '/v1/AUTH_test':
-            listing = ['saiof_test_read_access']
+            listing = self._list_containers(path)
         elif path == '/v1/AUTH_test/saiof_test_read_access':
-            listing = ['object']
+            listing = self._list_objects(path)
 
         dirents = ['.', '..']
         dirents.extend(listing)

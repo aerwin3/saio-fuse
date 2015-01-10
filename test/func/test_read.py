@@ -14,12 +14,17 @@
 
 import getpass
 import requests
+import time
 import unittest
 
 from subprocess import Popen, PIPE
 
 
 class ReadTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        time.sleep(1)
 
     @classmethod
     def tearDownClass(cls):
