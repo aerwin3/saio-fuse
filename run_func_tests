@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./saio_fuse ./mount_dir&
+./bin/saio_fuse ./mount_dir&
 PID=$!
 echo "SAIO Fuse started, PID: $PID"
 python -m unittest $@ test.func.test_read

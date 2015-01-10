@@ -13,21 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import sys
-
-from swift.common.ring import Ring
-from swift.common.utils import split_path
+from swift.common.utils import split_path as swift_split_path
 
 from stat import S_IFDIR, S_IFREG
-from fuse import FUSE, FuseOSError, Operations
+from fuse import Operations
 
-import requests
+
+def _split_path(path):
+    version = None
+    account = None
+    container = None
+    obj = None
+
+    if path == '/':
+        return (None, None, None, None)
+
+    if path == '/v1':
+        return ('v1', None, None, None)
+
+    version = 'v1'
+    account, container, obj = swift_split_path(path[3:], 1, 3,
+                                               rest_with_last=True)
+    return (version, account, container, obj)
+
 
 class SAIOFuse(Operations):
-
-    # Helper methods
-    # ==============
 
     def _list_accounts(self):
         return ['AUTH_test']
@@ -42,11 +52,11 @@ class SAIOFuse(Operations):
     # ==================
 
     def getattr(self, path, fh=None):
-        mode = S_IFREG | 0444
+        mode = S_IFREG | 0o444
         nlink = 1
 
         if path in '/v1/AUTH_test/saiof_test_read_access':
-            mode = S_IFDIR | 0555
+            mode = S_IFDIR | 0o555
             nlink = 2
 
         attr = {
@@ -63,32 +73,20 @@ class SAIOFuse(Operations):
         return attr
 
     def readdir(self, path, fh):
-        account = None
-        container = None
-        obj = None
-
-        if path != '/' and path != '/v1':
-            account, container, obj = split_path(path[3:], 1, 3)
+        version, account, container, obj = _split_path(path)
 
         listing = []
-        if account is None and path == '/':
-            listing = ['v1']
-        elif account is None and path == '/v1':
-            listing = self._list_accounts()
-        elif container is None and obj is None:
-            listing = self._list_containers(account)
-        elif obj is None:
+
+        if container is not None:
             listing = self._list_objects(account, container)
+        elif account is not None:
+            listing = self._list_containers(account)
+        elif version is not None:
+            listing = self._list_accounts()
+        else:
+            listing = ['v1']
 
         dirents = ['.', '..']
         dirents.extend(listing)
         for r in dirents:
             yield r
-
-
-def main(mountpoint):
-    FUSE(SAIOFuse(), mountpoint, foreground=True)
-
-
-if __name__ == '__main__':
-    main(sys.argv[1])
