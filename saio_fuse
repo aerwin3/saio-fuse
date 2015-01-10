@@ -17,6 +17,7 @@ import os
 import sys
 
 from swift.common.ring import Ring
+from swift.common.utils import split_path
 
 from stat import S_IFDIR, S_IFREG
 from fuse import FUSE, FuseOSError, Operations
@@ -28,13 +29,13 @@ class SAIOFuse(Operations):
     # Helper methods
     # ==============
 
-    def _list_accounts(self, path):
+    def _list_accounts(self):
         return ['AUTH_test']
 
-    def _list_containers(self, path):
+    def _list_containers(self, account):
         return ['saiof_test_read_access']
 
-    def _list_objects(self, path):
+    def _list_objects(self, account, container):
         return ['object']
 
     # Filesystem methods
@@ -62,15 +63,22 @@ class SAIOFuse(Operations):
         return attr
 
     def readdir(self, path, fh):
+        account = None
+        container = None
+        obj = None
+
+        if path != '/' and path != '/v1':
+            account, container, obj = split_path(path[3:], 1, 3)
+
         listing = []
-        if path == '/':
+        if account is None and path == '/':
             listing = ['v1']
-        elif path == '/v1':
-            listing = self._list_accounts(path)
-        elif path == '/v1/AUTH_test':
-            listing = self._list_containers(path)
-        elif path == '/v1/AUTH_test/saiof_test_read_access':
-            listing = self._list_objects(path)
+        elif account is None and path == '/v1':
+            listing = self._list_accounts()
+        elif container is None and obj is None:
+            listing = self._list_containers(account)
+        elif obj is None:
+            listing = self._list_objects(account, container)
 
         dirents = ['.', '..']
         dirents.extend(listing)
