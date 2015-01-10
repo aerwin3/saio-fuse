@@ -48,29 +48,67 @@ class SAIOFuse(Operations):
     def _list_objects(self, account, container):
         return ['object']
 
-    # Filesystem methods
-    # ==================
-
-    def getattr(self, path, fh=None):
-        mode = S_IFREG | 0o444
-        nlink = 1
-
-        if path in '/v1/AUTH_test/saiof_test_read_access':
-            mode = S_IFDIR | 0o555
-            nlink = 2
-
-        attr = {
+    def _get_attr_root(self):
+        return {
             'st_atime': 1420658919.81,
             'st_ctime': 1420658915.13,
             'st_gid': 1000,
-            'st_mode': mode,
+            'st_mode': S_IFDIR | 0o555,
             'st_mtime': 1420658915.13,
-            'st_nlink': nlink,
+            'st_nlink': 2,
             'st_size': 15,
             'st_uid': 1000,
         }
 
-        return attr
+    def _get_attr_account(self, account):
+        return {
+            'st_atime': 1420658919.81,
+            'st_ctime': 1420658915.13,
+            'st_gid': 1000,
+            'st_mode': S_IFDIR | 0o555,
+            'st_mtime': 1420658915.13,
+            'st_nlink': 2,
+            'st_size': 15,
+            'st_uid': 1000,
+        }
+
+    def _get_attr_container(self, account, container):
+        return {
+            'st_atime': 1420658919.81,
+            'st_ctime': 1420658915.13,
+            'st_gid': 1000,
+            'st_mode': S_IFDIR | 0o555,
+            'st_mtime': 1420658915.13,
+            'st_nlink': 2,
+            'st_size': 15,
+            'st_uid': 1000,
+        }
+
+    def _get_attr_object(self, account, container, object):
+        return {
+            'st_atime': 1420658919.81,
+            'st_ctime': 1420658915.13,
+            'st_gid': 1000,
+            'st_mode': S_IFREG | 0o444,
+            'st_mtime': 1420658915.13,
+            'st_nlink': 1,
+            'st_size': 15,
+            'st_uid': 1000,
+        }
+
+    # Filesystem methods
+    # ==================
+
+    def getattr(self, path, fh=None):
+        version, account, container, obj = _split_path(path)
+
+        if obj:
+            return self._get_attr_object(account, container, obj)
+        if container:
+            return self._get_attr_container(account, container)
+        if account:
+            return self._get_attr_account(account)
+        return self._get_attr_root()
 
     def readdir(self, path, fh):
         version, account, container, obj = _split_path(path)
