@@ -16,7 +16,7 @@
 import os
 import sys
 
-
+from stat import S_IFDIR, S_IFREG
 from fuse import FUSE, FuseOSError, Operations
 
 
@@ -26,16 +26,20 @@ class SAIOFuse(Operations):
     # ==================
 
     def getattr(self, path, fh=None):
-        mode = 33060
+        mode = S_IFREG | 0444
+        nlink = 1
+
         if path in '/v1/AUTH_test/saiof_test_read_access':
-            mode = 16877
+            mode = S_IFDIR | 0555
+            nlink = 2
+
         attr = {
             'st_atime': 1420658919.81,
             'st_ctime': 1420658915.13,
             'st_gid': 1000,
             'st_mode': mode,
             'st_mtime': 1420658915.13,
-            'st_nlink': 1,
+            'st_nlink': nlink,
             'st_size': 15,
             'st_uid': 1000,
         }

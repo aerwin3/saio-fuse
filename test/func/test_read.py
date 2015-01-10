@@ -54,12 +54,30 @@ class ReadTest(unittest.TestCase):
         if err:
             raise Exception('Could not create mount point')
 
-        # Ray mounts his his SAIO using SAIO Fuse.
-        # p = Popen(['./saio_fuse', '/tmp/saio_fuse'],
-        #           stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        # output, err = p.communicate()
+        # Ray lists all the accounts
+        p = Popen(['ls', '-l', 'mount_dir/v1'],
+                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, err = p.communicate()
+        self.assertEqual(err, '')
+        self.assertEqual(p.returncode, 0)
+        user = getpass.getuser()
+        # self.assertIn('total 4', output)
+        self.assertIn('dr-xr-xr-x 2 {} {} 15 Jan  7 19:28 AUTH_test'.format(
+                      user, user), output)
 
-        # Ray does a directory listing
+        # Ray lists all the containers for the account
+        p = Popen(['ls', '-l', 'mount_dir/v1/AUTH_test'],
+                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, err = p.communicate()
+        self.assertEqual(err, '')
+        self.assertEqual(p.returncode, 0)
+        user = getpass.getuser()
+        # self.assertIn('total 4', output)
+        self.assertIn('dr-xr-xr-x 2 {} {} 15 Jan  7 19:28 '
+                      'saiof_test_read_access'.format(
+                      user, user), output)
+
+        # Ray lists all the objects in the container
         p = Popen(['ls', '-l', 'mount_dir/v1/AUTH_test/saiof_test_read_access'],
                   stdin=PIPE, stdout=PIPE, stderr=PIPE)
         output, err = p.communicate()
