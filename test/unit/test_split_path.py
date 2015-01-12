@@ -19,48 +19,27 @@ from saio_fuse import _split_path
 
 class SplitPathTest(unittest.TestCase):
 
-    def test_root_path(self):
-        v, a, c, o = _split_path('/')
-        self.assertEqual(v, None)
-        self.assertEqual(a, None)
-        self.assertEqual(c, None)
-        self.assertEqual(o, None)
-
-    def test_version_path(self):
-        v, a, c, o = _split_path('/v1')
-        self.assertEqual(v, 'v1')
-        self.assertEqual(a, None)
-        self.assertEqual(c, None)
-        self.assertEqual(o, None)
-
-    def test_account_path(self):
-        v, a, c, o = _split_path('/v1/a')
-        self.assertEqual(v, 'v1')
-        self.assertEqual(a, 'a')
-        self.assertEqual(c, None)
-        self.assertEqual(o, None)
-
-    def test_container_path(self):
-        v, a, c, o = _split_path('/v1/a/c')
-        self.assertEqual(v, 'v1')
-        self.assertEqual(a, 'a')
-        self.assertEqual(c, 'c')
-        self.assertEqual(o, None)
-
-    def test_short_object_path(self):
-        v, a, c, o = _split_path('/v1/a/c/o')
-        self.assertEqual(v, 'v1')
-        self.assertEqual(a, 'a')
-        self.assertEqual(c, 'c')
-        self.assertEqual(o, 'o')
-
-    def test_long_object_path(self):
-        v, a, c, o = _split_path('/v1/a/c/o/l/o/n/g')
-        self.assertEqual(v, 'v1')
-        self.assertEqual(a, 'a')
-        self.assertEqual(c, 'c')
-        self.assertEqual(o, 'o/l/o/n/g')
-
+    def test_split_path(self):
+        cases = [('/', (None, None, None, None)),
+                 ('/v1', ('v1', None, None, None)),
+                 ('/v1/a', ('v1', 'a', None, None)),
+                 ('/v1/a/c', ('v1', 'a', 'c', None)),
+                 ('/v1/a/c/o', ('v1', 'a', 'c', 'o')),
+                 ('/v1/a/c/o/l/o/n/g', ('v1', 'a', 'c', 'o/l/o/n/g'))]
+        for case in cases:
+            v, a, c, o = _split_path(case[0])
+            self.assertEqual(v, case[1][0],
+                             msg="version not correct, %s != %s"
+                                 % (v, case[1][0]))
+            self.assertEqual(a, case[1][1],
+                             msg="account not correct, %s != %s"
+                                 % (v, case[1][1]))
+            self.assertEqual(c, case[1][2],
+                             msg="container not correct, %s != %s"
+                                 % (v, case[1][2]))
+            self.assertEqual(o, case[1][3],
+                             msg="object not correct, %s != %s"
+                                 % (v, case[1][3]))
 
 if __name__ == '__main__':
     unittest.main()
